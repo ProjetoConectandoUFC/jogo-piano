@@ -1,0 +1,75 @@
+// Observador externo: painel de log em tempo real para diagnosticar
+// problemas de avaliação MIDI/game.
+
+const MAX_LINES = 250;
+const NOTE_NAMES_PT = ['Dó','Dó#','Ré','Ré#','Mi','Fá','Fá#','Sol','Sol#','Lá','Lá#','Si'];
+
+let panel = null;
+let logEl = null;
+
+function ensure() {
+  if (!panel) panel = document.getElementById('debug-panel');
+  if (!logEl) logEl = document.getElementById('debug-log');
+}
+
+export function midiName(m) {
+  if (m == null || Number.isNaN(m)) return `??(${m})`;
+  const pc = ((m % 12) + 12) % 12;
+  const oct = Math.floor(m / 12) - 1;
+  return `${NOTE_NAMES_PT[pc]}${oct}`;
+}
+
+function tstamp() {
+  const d = new Date();
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  const ss = String(d.getSeconds()).padStart(2, '0');
+  const ms = String(d.getMilliseconds()).padStart(3, '0');
+  return `${mm}:${ss}.${ms}`;
+}
+
+export function dlog(level, msg) {
+  ensure();
+  if (!logEl) return;
+  const line = document.createElement('div');
+  line.className = `debug-line ${level}`;
+  line.textContent = `${tstamp()}  ${msg}`;
+  logEl.appendChild(line);
+  while (logEl.children.length > MAX_LINES) logEl.removeChild(logEl.firstChild);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+export function clearLog() {
+  ensure();
+  if (logEl) logEl.innerHTML = '';
+}
+
+export function togglePanel() {
+  ensure();
+  if (panel) panel.classList.toggle('hidden');
+}
+
+export function setupDebugUi() {
+  ensure();
+  const clearBtn = document.getElementById('debug-clear');
+  const closeBtn = document.getElementById('debug-close');
+  if (clearBtn) clearBtn.addEventListener('click', clearLog);
+  if (closeBtn) closeBtn.addEventListener('click', () => {
+    // botão × fecha — o ajuste do toggle no menu de configurações
+    // mantém o estado coerente. Aqui apenas escondemos visualmente.
+    if (panel) panel.classList.add('hidden');
+    // Mantém o checkbox sincronizado se existir
+    const cb = document.getElementById('setting-console');
+    if (cb) cb.checked = false;
+  });
+  // Já começa oculto via classe `hidden` no HTML; o log acumula em background.
+  dlog('info', 'Observador iniciado. Ative no menu de configurações (≡).');
+}
+
+export function showPanel() {
+  ensure();
+  if (panel) panel.classList.remove('hidden');
+}
+export function hidePanel() {
+  ensure();
+  if (panel) panel.classList.add('hidden');
+}
