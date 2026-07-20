@@ -1,0 +1,634 @@
+/* Folha de estilo para a interface do jogo de piano */
+:root {
+  --bg: #0b0b14;
+  --bg-2: #14142a;
+  --fg: #f5f5fa;
+  --muted: #8a8aa3;
+  --accent: #ffd166;
+  --accent-glow: #ffe7a3;
+  --good: #4ade80;
+  --good-glow: #86efac;
+  --bad: #f87171;
+  --bad-glow: #fca5a5;
+  --white-key: #f8f8f3;
+  --white-key-pressed: #ffe7a3;
+  --black-key: #1b1b22;
+  --black-key-pressed: #ffb84d;
+}
+/* Redefine box-sizing para border-box em todos os elementos para tamanhos consistentes */
+*, *::before, *::after { box-sizing: border-box; }
+/* Remove margens e preenchimentos padrão, define altura total, fundo com gradiente radial, cor do texto, fonte e suavização de fontes */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: radial-gradient(circle at 50% -10%, #1c1c3a 0%, var(--bg) 60%);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+/* Define a estrutura principal do aplicativo como um contêiner flexível em coluna, ocupando toda a altura da janela de visualização */
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+/* Estiliza a barra superior com flexbox, alinhando itens ao centro, espaçando-os uniformemente, adicionando preenchimento e uma borda inferior sutil */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 28px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+/* Estiliza a seção esquerda da barra superior com flexbox, alinhando itens ao centro e adicionando espaçamento entre eles */
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+/* Estiliza o título na barra superior, removendo margens, definindo tamanho da fonte, espaçamento entre letras e peso da fonte */
+.topbar h1 {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+/* Estiliza o botão de configurações com tamanho fixo, flexbox para centralizar conteúdo, fundo semitransparente, borda arredondada, cor do texto, tamanho da fonte e transição suave ao passar o mouse */
+.settings-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 8px;
+  color: var(--fg);
+  font-size: 20px;
+  cursor: pointer;
+  transition: background 120ms ease;
+  font-family: inherit;
+}
+/* Adiciona um efeito de hover ao botão de configurações, alterando o fundo para uma cor semitransparente mais clara */
+.settings-btn:hover {
+  background: rgba(255,255,255,0.12);
+}
+/* Estiliza o painel de configurações como um elemento fixo, posicionado abaixo da barra superior, com fundo, borda, arredondamento, preenchimento, largura mínima, índice z e sombra */
+.settings-panel {
+  position: fixed;
+  top: 70px;
+  left: 24px;
+  background: var(--bg-2);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  padding: 14px 16px;
+  min-width: 280px;
+  z-index: 25;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.5);
+  animation: fadeIn 140ms ease;
+}
+/* Oculta o painel de configurações quando a classe 'hidden' é aplicada */
+.settings-panel.hidden { display: none; }
+/* Estiliza o título das configurações com tamanho de fonte menor, transforma o texto em maiúsculas, adiciona espaçamento entre letras, cor e margem inferior */
+.settings-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+/* Estiliza cada linha de configuração como um contêiner flexível, alinhando itens ao centro, adicionando espaçamento entre eles, preenchimento, tamanho de fonte, cursor e desativando a seleção de texto */
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+/* Estiliza os checkboxes dentro das linhas de configuração com tamanho fixo, cor de destaque, cursor e altura */
+.settings-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+/* Estiliza o status do MIDI com tamanho de fonte, preenchimento, borda arredondada e cor da borda */
+.midi-status {
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+}
+/* Define cores diferentes para o status do MIDI quando conectado ou desconectado */
+.midi-status.connected { color: var(--good); }
+.midi-status.disconnected { color: var(--muted); }
+/* Estiliza o palco principal do jogo como um contêiner flexível em coluna, centralizando itens, adicionando espaçamento, preenchimento e alinhamento de texto */
+.stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 24px;
+  text-align: center;
+}
+/* Estiliza a mensagem principal do jogo com tamanho de fonte, altura da linha, largura máxima, peso da fonte e transição suave de opacidade */
+.message {
+  font-size: 30px;
+  line-height: 1.3;
+  max-width: 760px;
+  font-weight: 500;
+  transition: opacity 200ms ease;
+}
+/* Adiciona uma animação de pulso à mensagem quando a classe 'pulse' é aplicada, escalando e alterando a opacidade e cor */
+.message.pulse {
+  animation: messagePulse 380ms ease-out;
+}
+/* Define a animação de pulso da mensagem, escalando e alterando a opacidade e cor ao longo do tempo */
+@keyframes messagePulse {
+  0%   { transform: scale(0.92); opacity: 0.5; color: var(--accent); }
+  60%  { transform: scale(1.06); opacity: 1; color: var(--accent); }
+  100% { transform: scale(1); opacity: 1; }
+}
+/* Estiliza o nome da melodia com tamanho de fonte, cor de destaque, peso da fonte e altura mínima */
+.melody-name {
+  font-size: 20px;
+  color: var(--accent);
+  font-weight: 600;
+  min-height: 24px;
+}
+/* Estiliza o indicador de estágio com tamanho de fonte, espaçamento entre letras, transformação de texto, cor, peso da fonte, preenchimento, borda e arredondamento */
+.stage-indicator {
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  padding: 4px 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 999px;
+}
+/* Oculta o indicador de estágio quando a classe 'hidden' é aplicada */
+.stage-indicator.hidden { display: none; }
+/* Define cores diferentes para o indicador de estágio com base no nível, usando variáveis CSS e cores RGBA para bordas semitransparentes */
+.stage-indicator.lv1 { color: var(--good); border-color: rgba(74,222,128,0.4); }
+.stage-indicator.lv2 { color: var(--accent); border-color: rgba(255,209,102,0.4); }
+.stage-indicator.lv3 { color: #f0a4ff; border-color: rgba(240,164,255,0.4); }
+/* Estiliza o botão de início com preenchimento, tamanho de fonte, peso da fonte, cor do texto, fundo de destaque, borda arredondada, cursor e transições suaves para transformações e opacidade */
+.start-btn {
+  padding: 12px 26px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--bg);
+  background: var(--accent);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 120ms ease, opacity 120ms ease;
+  font-family: inherit;
+}
+/* Define estilos diferentes para o botão de início quando está desabilitado, reduzindo a opacidade e alterando o cursor para indicar que não é clicável */
+.start-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.start-btn:not(:disabled):hover { transform: translateY(-1px); }
+.start-btn:not(:disabled):active { transform: translateY(1px); }
+/* Estiliza o contêiner do piano com preenchimento, display flexível e centralização do conteúdo */
+.piano-wrap {
+  padding: 28px 28px 40px;
+  display: flex;
+  justify-content: center;
+}
+/* Estiliza o piano com posição relativa, largura e altura definidas, fundo com gradiente, borda arredondada, preenchimento e sombra */
+.piano {
+  position: relative;
+  width: min(1180px, 96vw);
+  height: 220px;
+  background: linear-gradient(180deg, #2a2a40, #16162a);
+  border-radius: 14px;
+  padding: 14px 14px 18px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+/* Estiliza cada tecla do piano com posição absoluta, borda arredondada, transições suaves para transformações, sombras e fundo, além de desabilitar a seleção de texto */
+.key {
+  position: absolute;
+  top: 14px;
+  border-radius: 0 0 6px 6px;
+  transition: transform 60ms ease, box-shadow 120ms ease, background 120ms ease;
+  user-select: none;
+}
+/* Define estilos específicos para teclas brancas e pretas, incluindo altura, fundo, borda, sombra e índice z para sobreposição */
+.key.white {
+  height: calc(100% - 28px);
+  background: var(--white-key);
+  border: 1px solid #b8b8a8;
+  box-shadow: inset 0 -6px 12px rgba(0,0,0,0.12);
+  z-index: 1;
+}
+/* Define estilos específicos para teclas pretas, incluindo altura, fundo, borda, sombra e índice z para sobreposição */
+.key.black {
+  height: 62%;
+  background: var(--black-key);
+  border: 1px solid #000;
+  box-shadow: inset 0 -4px 8px rgba(255,255,255,0.08), 0 4px 6px rgba(0,0,0,0.5);
+  z-index: 2;
+}
+/* Define estilos para teclas pressionadas, alterando o fundo, transformações e sombras para criar um efeito visual de pressão */
+.key.pressed.white {
+  background: var(--white-key-pressed);
+  transform: translateY(4px) scaleY(0.985);
+  box-shadow: inset 0 -3px 6px rgba(0,0,0,0.15), 0 0 24px 4px rgba(255,209,102,0.55);
+}
+/* Define estilos para teclas pretas pressionadas, alterando o fundo, transformações e sombras para criar um efeito visual de pressão */
+.key.pressed.black {
+  background: var(--black-key-pressed);
+  transform: translateY(3px) scaleY(0.97);
+  box-shadow: inset 0 -2px 4px rgba(0,0,0,0.3), 0 0 18px 3px rgba(255,184,77,0.7);
+}
+.key.player-pressed.white {
+  background: #b4f0c2;
+  box-shadow: inset 0 -3px 6px rgba(0,0,0,0.15), 0 0 22px 4px rgba(74,222,128,0.55);
+}
+.key.player-pressed.black {
+  background: #5ed18b;
+  box-shadow: inset 0 -2px 4px rgba(0,0,0,0.3), 0 0 18px 3px rgba(74,222,128,0.7);
+}
+
+/* Countdown 3, 2, 1 */
+/* Estiliza a contagem regressiva como um elemento fixo, centralizado, com fundo semitransparente, desfoque de fundo e índice z alto */
+.countdown {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 6;
+  pointer-events: none;
+  background: rgba(11, 11, 20, 0.35);
+  backdrop-filter: blur(2px);
+}
+/* Oculta a contagem regressiva quando a classe 'hidden' é aplicada */
+.countdown.hidden { display: none; }
+/* Estiliza o número da contagem regressiva com tamanho de fonte grande, peso da fonte, cor de destaque, sombra de texto e animação de pop */
+.countdown-num {
+  font-size: 260px;
+  font-weight: 800;
+  color: var(--accent);
+  text-shadow: 0 0 80px rgba(255,209,102,0.7), 0 0 24px rgba(255,209,102,0.4);
+  animation: countdownPop 700ms ease-out forwards;
+  font-variant-numeric: tabular-nums;
+}
+/* Define a animação de pop da contagem regressiva, escalando e alterando a opacidade ao longo do tempo */
+@keyframes countdownPop {
+  0%   { transform: scale(0.3); opacity: 0; }
+  18%  { transform: scale(1.25); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.55; }
+}
+
+/* Modal de escolha de melodia (modo desenvolvedor) */
+/* Estiliza o picker de melodia como um elemento fixo, centralizado, com fundo semitransparente, desfoque de fundo e índice z alto */
+
+.melody-picker {
+  position: fixed;
+  inset: 0;
+  background: rgba(8,8,16,0.86);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+  animation: fadeIn 180ms ease;
+}
+/* Oculta o picker de melodia quando a classe 'hidden' é aplicada */
+.melody-picker.hidden { display: none; }
+/* Estiliza o cartão do picker de melodia com fundo, borda, arredondamento, preenchimento, largura, altura máxima, flexbox em coluna e sombra */
+.melody-picker-card {
+  background: var(--bg-2);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  padding: 22px 24px 18px;
+  width: 520px;
+  max-height: 78vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+}
+/* Estiliza o botão de fechar do picker de melodia com tamanho fixo, flexbox para centralizar conteúdo, fundo semitransparente, borda arredondada, cor do texto, tamanho da fonte e transição suave ao passar o mouse */
+.picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: 0.4px;
+}
+/* Estiliza o botão de fechar do picker de melodia com tamanho fixo, flexbox para centralizar conteúdo, fundo semitransparente, borda arredondada, cor do texto, tamanho da fonte e transição suave ao passar o mouse */
+.picker-header span span {
+  color: var(--accent);
+  font-weight: 700;
+}
+/* Estiliza a lista de melodias como um contêiner flexível em coluna, adicionando espaçamento entre os itens, permitindo rolagem vertical e adicionando preenchimento à direita */
+.picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+/* Estiliza cada item da lista de melodias com preenchimento, fundo semitransparente, borda, arredondamento, cor do texto, fonte, tamanho da fonte, peso da fonte, alinhamento do texto, cursor e transições suaves para fundo, cor da borda e transformações */
+.picker-item {
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
+}
+/* Adiciona um efeito de hover aos itens da lista de melodias, alterando o fundo, a cor da borda e aplicando uma leve translação para a direita */
+.picker-item:hover {
+  background: rgba(255,209,102,0.10);
+  border-color: rgba(255,209,102,0.4);
+  transform: translateX(3px);
+}
+/* Estiliza a metainformação de cada item da lista de melodias, exibindo-a como um bloco, com cor de texto mais clara, tamanho de fonte menor, peso da fonte normal, margem superior e espaçamento entre letras */
+.picker-item .picker-meta {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 400;
+  margin-top: 4px;
+  letter-spacing: 0.3px;
+}
+/* Estiliza o rodapé do picker de melodia com margem superior, preenchimento superior, borda superior semitransparente, tamanho de fonte menor, cor de texto mais clara e alinhamento central */
+.picker-footer {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* Observador (debug panel) */
+/* Estiliza o painel de debug como um elemento fixo, posicionado no canto superior direito, com fundo semitransparente, borda, arredondamento, largura, altura, flexbox em coluna, fonte monoespaçada, cor do texto e sombra */
+.debug-panel {
+  position: fixed;
+  top: 80px;
+  right: 14px;
+  width: 440px;
+  height: 340px;
+  background: rgba(8, 8, 16, 0.94);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 10px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  color: var(--fg);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+}
+/* Oculta o painel de debug quando a classe 'hidden' é aplicada */
+.debug-panel.hidden { display: none; }
+/* Estiliza o cabeçalho do painel de debug com preenchimento, borda inferior semitransparente, flexbox para espaçamento entre itens, tamanho de fonte menor e cor de texto mais clara */
+.debug-header {
+  padding: 7px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--muted);
+}
+/* Estiliza o título do painel de debug com espaçamento entre letras */
+.debug-title { letter-spacing: 0.5px; }
+/* Estiliza a seção de ações do painel de debug com display flexível e espaçamento entre os botões */
+.debug-actions { display: flex; gap: 6px; }
+/* Estiliza os botões de debug com fundo semitransparente, borda, cor do texto, fonte, tamanho da fonte, preenchimento, arredondamento e cursor */
+.debug-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+/* Adiciona um efeito de hover aos botões de debug, alterando o fundo para uma cor semitransparente mais clara */
+.debug-btn:hover { background: rgba(255,255,255,0.12); }
+/* Estiliza a área de log do painel de debug com flexível, rolagem vertical, preenchimento, tamanho de fonte menor e altura da linha */
+.debug-log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 10px;
+  font-size: 11px;
+  line-height: 1.45;
+}
+/* Estiliza cada linha de log com espaçamento entre letras e altura da linha */
+.debug-line {
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 1px 0;
+}
+/* Define cores diferentes para cada tipo de linha de log, incluindo informações, estado, MIDI, sucesso, erro e ignorado */
+.debug-line.info    { color: #cbd5f5; }
+.debug-line.state   { color: #a5b4fc; font-weight: 600; }
+.debug-line.midi    { color: var(--accent); }
+.debug-line.midi-off{ color: rgba(255,209,102,0.55); }
+.debug-line.ok      { color: var(--good); }
+.debug-line.err     { color: var(--bad); }
+.debug-line.ignored { color: var(--muted); }
+
+/* Confete (vitória final do estágio 3) */
+/* Estiliza o contêiner de confete como um elemento fixo, ocupando toda a tela, sem interação do usuário, com índice z acima do overlay e ocultando o estouro */
+.confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 11; /* acima do overlay para celebrar */
+  overflow: hidden;
+}
+/* Oculta o contêiner de confete quando a classe 'hidden' é aplicada */
+.confetti.hidden { display: none; }
+/* Estiliza cada peça de confete com posição absoluta, borda arredondada, variáveis CSS para rotação inicial e final, deriva horizontal, transformações e animação de queda */
+.confetti-piece {
+  position: absolute;
+  top: -30px;
+  border-radius: 2px;
+  --rot-start: 0deg;
+  --rot-end: 720deg;
+  --drift: 0px;
+  transform: rotate(var(--rot-start));
+  animation: confettiFall linear forwards;
+}/* Define a animação de queda do confete, alterando a posição vertical, rotação e opacidade ao longo do tempo */
+@keyframes confettiFall {
+  0%   { transform: translate(0, 0) rotate(var(--rot-start)); opacity: 1; }
+  100% { transform: translate(var(--drift), 110vh) rotate(var(--rot-end)); opacity: 0.85; }
+}
+
+/* Overlay (vitória / derrota) */
+/* Estiliza o overlay como um elemento fixo, ocupando toda a tela, centralizando conteúdo, com fundo semitransparente, desfoque de fundo e índice z alto */
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  background: rgba(11, 11, 20, 0.88);
+  backdrop-filter: blur(6px);
+  animation: fadeIn 200ms ease;
+}
+/* Oculta o overlay quando a classe 'hidden' é aplicada */
+.overlay.hidden { display: none; }
+/* Define estilos diferentes para o overlay de vitória, incluindo gradiente radial, animação de fade-in e pulso de vitória */
+.overlay.win {
+  background: radial-gradient(circle at 50% 50%, rgba(74,222,128,0.32), rgba(11,11,20,0.92) 70%);
+  animation: fadeIn 220ms ease, winPulse 2.4s ease-in-out 220ms infinite;
+}
+/* Define estilos diferentes para o overlay de derrota, incluindo gradiente radial e animação de fade-in */
+.overlay.champion {
+  background: radial-gradient(circle at 50% 50%, rgba(255,209,102,0.45), rgba(11,11,20,0.92) 70%);
+  animation: fadeIn 220ms ease, championPulse 1.8s ease-in-out 220ms infinite;
+}
+/* Define a animação de pulso de vitória, alterando o fundo ao longo do tempo */
+.overlay.champion .overlay-card {
+  border-color: rgba(255,209,102,0.7);
+  box-shadow: 0 0 100px rgba(255,209,102,0.45), 0 30px 80px rgba(0,0,0,0.5);
+}
+/* Define estilos diferentes para o título do overlay de campeão, incluindo cor, sombra de texto e animação de pulso */
+.overlay.champion .overlay-title {
+  color: var(--accent);
+  text-shadow: 0 0 32px rgba(255,209,102,0.7);
+  animation: championTitlePulse 1.8s ease-in-out 700ms infinite;
+}
+/* Define a animação de pulso do título do campeão, escalando e alterando a sombra de texto ao longo do tempo */
+@keyframes championTitlePulse {
+  0%, 100% {
+    transform: scale(1);
+    text-shadow: 0 0 32px rgba(255,209,102,0.7);
+  }
+  50% {
+    transform: scale(1.045);
+    text-shadow: 0 0 56px rgba(255,209,102,1), 0 0 24px rgba(255,255,255,0.45);
+  }
+}
+/* Estiliza o badge de nível como um elemento inline-block, com margens, preenchimento, borda arredondada, peso da fonte, espaçamento entre letras, tamanho da fonte e transformação de texto */
+.tier-badge {
+  display: inline-block;
+  margin-top: 4px;
+  margin-bottom: 12px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+/* Define estilos diferentes para cada nível de badge, incluindo fundo semitransparente, cor do texto e borda semitransparente */
+.tier-badge.t0 { background: rgba(248,113,113,0.18); color: var(--bad); border: 1px solid rgba(248,113,113,0.4); }
+.tier-badge.t1 { background: rgba(74,222,128,0.18); color: var(--good); border: 1px solid rgba(74,222,128,0.4); }
+.tier-badge.t2 { background: rgba(255,209,102,0.18); color: var(--accent); border: 1px solid rgba(255,209,102,0.5); }
+.tier-badge.t3 { background: rgba(255,209,102,0.28); color: #fff5d6; border: 1px solid rgba(255,209,102,0.7); }
+/* Define a animação de pulso do campeão, alterando o fundo ao longo do tempo */
+@keyframes championPulse {
+  0%, 100% { background: radial-gradient(circle at 50% 50%, rgba(255,209,102,0.40), rgba(11,11,20,0.92) 70%); }
+  50%      { background: radial-gradient(circle at 50% 50%, rgba(255,209,102,0.55), rgba(11,11,20,0.92) 60%); }
+}
+/* Define estilos diferentes para o overlay de derrota, incluindo gradiente radial e animação de fade-in e tremor de tela */
+.overlay.lose {
+  background: radial-gradient(circle at 50% 50%, rgba(248,113,113,0.28), rgba(11,11,20,0.94) 70%);
+  animation: fadeIn 220ms ease, screenShake 480ms ease-out;
+}
+/* Estiliza o cartão do overlay com fundo, borda, arredondamento, preenchimento, alinhamento de texto, largura máxima e mínima, e sombra */
+.overlay-card {
+  background: var(--bg-2);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 22px;
+  padding: 44px 60px;
+  text-align: center;
+  max-width: 560px;
+  min-width: 380px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+}
+.overlay.win .overlay-card {
+  border-color: rgba(74,222,128,0.5);
+  box-shadow: 0 0 80px rgba(74,222,128,0.35), 0 30px 80px rgba(0,0,0,0.5);
+  animation: cardPop 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.overlay.lose .overlay-card {
+  border-color: rgba(248,113,113,0.55);
+  box-shadow: 0 0 60px rgba(248,113,113,0.3), 0 30px 80px rgba(0,0,0,0.5);
+  animation: cardShake 480ms ease-out both;
+}
+/* Estiliza o título do overlay com tamanho de fonte grande, peso da fonte, margem inferior e espaçamento entre letras */
+.overlay-title {
+  font-size: 52px;
+  font-weight: 800;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+/* Define cores diferentes para o título do overlay com base no resultado, incluindo vitória e derrota, além de sombras de texto correspondentes */
+.overlay-title.win { color: var(--good); text-shadow: 0 0 24px rgba(74,222,128,0.5); }
+.overlay-title.lose { color: var(--bad); text-shadow: 0 0 24px rgba(248,113,113,0.5); }
+/* Estiliza a pontuação do overlay com tamanho de fonte muito grande, peso da fonte, cor de destaque, margem, variante numérica tabular e sombra de texto */
+.overlay-score {
+  font-size: 72px;
+  font-weight: 800;
+  color: var(--accent);
+  margin: 6px 0 4px;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 30px rgba(255,209,102,0.4);
+}
+/* Estiliza a classificação do overlay com tamanho de fonte grande, peso da fonte, cor de destaque, margem inferior e sombra de texto */
+.overlay-stars {
+  font-size: 38px;
+  letter-spacing: 10px;
+  margin-bottom: 14px;
+  color: var(--accent);
+}
+/* Estiliza o subtítulo do overlay com tamanho de fonte menor, cor de texto mais clara, margem inferior e altura da linha */
+.overlay-sub {
+  font-size: 17px;
+  color: var(--muted);
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+/* Estiliza o botão de ação do overlay com preenchimento, tamanho de fonte, peso da fonte, cor do texto, fundo de destaque, borda arredondada, cursor e transições suaves para transformações e opacidade */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes cardPop {
+  0%   { transform: scale(0.7); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes cardShake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-14px); }
+  30% { transform: translateX(12px); }
+  45% { transform: translateX(-8px); }
+  60% { transform: translateX(6px); }
+  75% { transform: translateX(-3px); }
+}
+@keyframes winPulse {
+  0%, 100% { background: radial-gradient(circle at 50% 50%, rgba(74,222,128,0.30), rgba(11,11,20,0.92) 70%); }
+  50%      { background: radial-gradient(circle at 50% 50%, rgba(74,222,128,0.45), rgba(11,11,20,0.92) 65%); }
+}
+@keyframes screenShake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-8px, 4px); }
+  40% { transform: translate(7px, -3px); }
+  60% { transform: translate(-4px, 2px); }
+  80% { transform: translate(3px, -1px); }
+}

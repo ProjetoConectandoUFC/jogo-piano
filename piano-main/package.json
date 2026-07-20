@@ -1,0 +1,48 @@
+{
+  "name": "genius-no-piano",
+  "version": "0.2.0",
+  "description": "Jogo de memória musical — toque a melodia no teclado MIDI",
+  "main": "main.js",
+  "author": "Eduardo Novais",
+  "scripts": {
+    "start": "electron .",
+    "dist:mac": "electron-builder --mac",
+    "dist:win": "electron-builder --win --x64",
+    "dist:all": "electron-builder --mac --win --x64",
+    "dist": "electron-builder --mac"
+  },
+  "devDependencies": {
+    "electron": "^30.0.9",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.eduardonovais.geniusnopiano",
+    "productName": "Genius no Piano",
+    "directories": {
+      "output": "dist"
+    },
+    "mac": {
+      "category": "public.app-category.games",
+      "target": [
+        { "target": "dmg", "arch": ["arm64", "x64"] }
+      ]
+    },
+    "win": {
+      "target": [
+        { "target": "portable", "arch": ["x64"] },
+        { "target": "nsis", "arch": ["x64"] }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    },
+    "files": [
+      "main.js",
+      "index.html",
+      "styles.css",
+      "src/**/*"
+    ]
+  }
+}

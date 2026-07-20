@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';" />
+    <title>Genius no Piano</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main id="app">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="settings-btn" class="settings-btn" aria-label="Configurações">≡</button>
+          <h1>Genius no Piano</h1>
+        </div>
+        <div id="midi-status" class="midi-status disconnected">Procurando dispositivo MIDI…</div>
+      </header>
+
+      <div id="settings-panel" class="settings-panel hidden" role="dialog">
+        <div class="settings-title">Configurações</div>
+        <label class="settings-row">
+          <input type="checkbox" id="setting-same-melody" checked />
+          <span>Mesma melodia nos 3 níveis</span>
+        </label>
+        <label class="settings-row">
+          <input type="checkbox" id="setting-console" />
+          <span>Mostrar console (observador)</span>
+        </label>
+      </div>
+
+      <section id="stage" class="stage">
+        <div id="stage-indicator" class="stage-indicator hidden">Estágio 1 de 3</div>
+        <div id="message" class="message">Conecte um teclado MIDI compatível com MPK Mini.</div>
+        <div id="melody-name" class="melody-name"></div>
+        <button id="start-btn" class="start-btn" disabled>Iniciar partida</button>
+      </section>
+
+      <section class="piano-wrap">
+        <div id="piano" class="piano" aria-label="Teclado MPK Mini virtual"></div>
+      </section>
+
+      <div id="countdown" class="countdown hidden" aria-hidden="true"></div>
+
+      <div id="confetti" class="confetti hidden" aria-hidden="true"></div>
+
+      <div id="melody-picker" class="melody-picker hidden" role="dialog">
+        <div class="melody-picker-card">
+          <header class="picker-header">
+            <span>Modo desenvolvedor — escolha do estágio <span id="picker-level">1</span></span>
+            <button id="picker-close" class="debug-btn" title="Cancelar">×</button>
+          </header>
+          <div id="picker-list" class="picker-list"></div>
+          <footer class="picker-footer">D ou ESC para fechar · clique numa melodia para carregá-la</footer>
+        </div>
+      </div>
+
+      <aside id="debug-panel" class="debug-panel hidden">
+        <header class="debug-header">
+          <span class="debug-title">Observador (O para ocultar)</span>
+          <span class="debug-actions">
+            <button id="debug-clear" class="debug-btn" title="Limpar log">limpar</button>
+            <button id="debug-close" class="debug-btn" title="Ocultar">×</button>
+          </span>
+        </header>
+        <div id="debug-log" class="debug-log"></div>
+      </aside>
+
+      <div id="overlay" class="overlay hidden">
+        <div class="overlay-card">
+          <div id="overlay-title" class="overlay-title"></div>
+          <div id="overlay-badge" class="tier-badge" style="display:none"></div>
+          <div id="overlay-score" class="overlay-score"></div>
+          <div id="overlay-stars" class="overlay-stars"></div>
+          <div id="overlay-sub" class="overlay-sub"></div>
+          <button id="overlay-btn" class="start-btn">Jogar de novo</button>
+        </div>
+      </div>
+    </main>
+
+    <script type="module" src="src/renderer.js"></script>
+  </body>
+</html>
